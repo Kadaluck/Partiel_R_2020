@@ -1,0 +1,110 @@
+---
+title: "kadaoui_alexandre_Lubridate"
+author: "Alexandre"
+date: "23/12/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+<br> Dans le cadre de notre partiel, nous devons réaliser un total de 12 travaux retracant notre parcours et notre travail durant les 30 heures de cours. 
+<br>    Le travail à faire est le suivant : 
+<br>    - Une entête comportant un titre, un lien Github avec le ou les noms des auteurs.
+<br>    - Une synthese de ce travail 
+<br>    - Un extrait commenté avec des parties de codes clé avec explication et commentaire. 
+<br>    - Une évalutation du travail avec nos 5 criteres. 
+<br>    - Une conclusion du travail 
+
+## Definition des 5 critères de notations : 
+<br> 1) Effort de présentation : 
+<br> 2) Le knit est réalisable et bien présenté.
+<br> 3) Explications simples et efficaces.
+<br> 4) Le Code reproductible à d'autres DataFrame avec facilité. 
+<br> 5) Description des fonctions utilsés et du raisonnement. 
+
+## Tutoriel Lubridate
+Travail réalisé par " Gaspard PALAY " le 11/11/2020. 
+
+GitHub: https://github.com/GaspardPalay/PSBX/tree/main/TutorielLubridate
+
+
+## Synthese : 
+<br> Le package Lubridate a pour objectif d'harmoniser les dates et temps (heures, minutes, secondes) au même format afin que toutes les observations soient comparables. 
+<br> Ce package permet également de convertir ces dates et données de temps généralement considérées comme des strings dans un format que R sera capable de reconnaitre comme des mesures de temps (notamment les formats "POSIXct" et "Date")
+<br> Une fois reconnues comme des données de temps par R, il sera ensuite possible de manipuler et analyser ces données via R
+
+
+## Extrait commenté du code :
+
+
+```{r}
+library(lubridate) #inclus dans le package tidyverse
+
+```
+
+### Via **lubridate::dmy** on convertit le 30 mai 2020 en date au format Date Month Year (DMY)
+```{r}
+jourJ <- lubridate::dmy("30 may 2020")
+class(jourJ)
+jourJ
+```
+
+### Conversion d'un vecteur cnotenant date et heure sous forme de string en en format "date-time" interprétable par R
+```{r}
+ymd("2019/04_11")
+ymd_hm("2019.04.11 14h37")
+ymd_hms("20190407143752")
+hms("14h37min52s")
+```
+
+### Récupération d'éléments précis tels que la date ou l'heure dans un format "date-time"
+```{r}
+t <- ymd_hms("2020.11.09_17.56.32")
+date(t)
+hour(t)
+minute(t)
+second(t)
+```
+
+### Déterminer l'écart entre deux dates et/ou heures entre deux temps donnés via la fonction **diff**
+```{r}
+t1 <- dmy("12/09/2020")
+t2 <- dmy("30/01/2016")
+diff <- t1-t2
+as.duration(diff)
+as.period(diff)
+```
+
+### Manipulation de dates, ajout de mois, jours, semaines, heures etc...
+```{r}
+t1+months(9) # On ajoute 9 mois à la date t1
+t1+ddays(287) # On ajoute 287 jours à la date t1
+ddays(287)/dweeks(1) # On calcule le nombre de semaines que contituent 287 jours
+t2-dweeks(7) # On soustrait 7 semaine à la date t2
+```
+
+### La fonction **interval** permet de ernvoyer l'interval de temps entre deux instants précis (ici on prend également en compte les fuseaux horaires, ou timezones, grâce au terme **tz** )
+Ici on détermine l'interval de temps entre un départ de Dakar en Afrique et une arrivée à Toronto tout en prenant en compte les fuseaux horaires des deux lieux.
+```{r}
+date_depart <- dmy_hm("27/12/2016 5:45", tz="Africa/Dakar")
+date_arrive <- mdy_hm("dec 28, 2017  19:30", tz="America/Toronto")
+duree <- interval(date_depart, date_arrive)
+duree
+```
+
+## Evaluation du travail : 
+
+<br> 1) Effort de présentation : Le tuto est très bien réalisé, bien présenté et facilement lisible
+<br> 2) Le knit est réalisable et bien présenté : Le knit est facile à réaliser et ne rpésente aucun conflit
+<br> 3) Explications simples et efficaces : Les explications du codes et des divers concepts (tels que l'heure POSIX par exemple) sont très clairs et simples à comprendre. Les diverses fonctions de codes ainisi que les termes qui les composent sont tous bien explicités et facilement compréhensibles
+<br> 4) Le Code reproductible à d'autres DataFrame avec facilité : Les exemples utilisés ici dans le code sont très généralistes, le code est donc facilement reproductible et réadaptable pour une utilisation dans d'autres contextes.
+<br> 5) Description des fonctions utilsés et du raisonnement : Les fonctoins clefs utilisées sont **lubridate::dmy** et ses variations pour la conversion de dates string en date interprétables par R ainsi que les fonctions **interval** ou encore **diff**.
+
+
+
+## Conclusion : 
+Ce tutoriel très bien réalisé et simple permet de facilement s'approprier les différentes fonctionnalités et usages du package Lubridate afin de manipuler les données datées via R.

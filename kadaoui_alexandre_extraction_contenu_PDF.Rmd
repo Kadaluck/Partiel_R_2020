@@ -1,0 +1,161 @@
+---
+title: "kadaoui_alexandre_extraction_contenu_PDF"
+author: "Alexandre"
+date: "23/12/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+<br> Dans le cadre de notre partiel, nous devons réaliser un total de 12 travaux retracant notre parcours et notre travail durant les 30 heures de cours. 
+<br>    Le travail à faire est le suivant : 
+<br>    - Une entête comportant un titre, un lien Github avec le ou les noms des auteurs.
+<br>    - Une synthese de ce travail 
+<br>    - Un extrait commenté avec des parties de codes clé avec explication et commentaire. 
+<br>    - Une évalutation du travail avec nos 5 criteres. 
+<br>    - Une conclusion du travail 
+
+## Definition des 5 critères de notations : 
+<br> 1) Effort de présentation : 
+<br> 2) Le knit est réalisable et bien présenté.
+<br> 3) Explications simples et efficaces.
+<br> 4) Le Code reproductible à d'autres DataFrame avec facilité. 
+<br> 5) Description des fonctions utilsés et du raisonnement. 
+
+## Extraction et manipulation du contenu d'un PDF
+Travail réalisé par " chaymae-data " le 20/11/2020. 
+
+GitHub: https://github.com/chaymae-data/PSBX
+
+
+## Synthese : 
+<br> R possède des fonctionnalités nous permettant d'extraire des données d'un pdf, que ce soit du textes ou des données numériques
+<br> Ce tutoriel présente donc comment extraire ces données puis comment les retraiter afin d'obtenir un résultat exploitable pour de l'analyse sémantique (dans le cas de texte ici)
+
+
+## Extrait commenté du code :
+
+## Extraire le contenu du fichier PDF via R
+### Méthode 1: package **pdftools**
+```{r}
+#install.packages(pdftools)
+library(pdftools)
+
+```
+
+```{r}
+#install.packages(pdftools)
+library(pdftools)
+download.file("https://www.btboces.org/Downloads/I%20Have%20a%20Dream%20by%20Martin%20Luther%20King%20Jr.pdf","I%20Have%20a%20Dream%20by%20Martin%20Luther%20King%20Jr.pdf", mode = "wb")
+text <- pdf_text("I%20Have%20a%20Dream%20by%20Martin%20Luther%20King%20Jr.pdf")
+text1 <- strsplit(text, "\n")
+cat(text[1])
+```
+
+### Méthode 2: package **tm** (text mining)
+```{r}
+#install.packages("tm")
+library(tm)
+
+```
+
+Importation de documents et corpus 
+```{r}
+docs <- getwd()
+my_corpus <- VCorpus(DirSource(docs, pattern = ".pdf"), readerControl = list(reader = readPDF))
+```
+
+```{r}
+inspect(my_corpus) #lecture du document
+writeLines(as.character(my_corpus[[1]])) #affichage du contenu du document
+```
+
+### Nettoyage du contenu afin de ne conserver que les mots clefs
+Insertion d'un espace séparant les poncutations et le texte afin de protéger les données de texte lors de la suppresion des ponctuations
+```{r}
+toSpace<-content_transformer(function(x,pattern) {return(gsub(pattern," ",x))})
+my_corpus<-tm_map(my_corpus,toSpace,"-")
+my_corpus<-tm_map(my_corpus,toSpace,",")
+my_corpus<-tm_map(my_corpus,toSpace,"!")
+my_corpus<-tm_map(my_corpus,toSpace,"--")
+my_corpus<-tm_map(my_corpus,toSpace,"'")
+```
+
+Suppression des ponctuations
+```{r}
+my_corpus<-tm_map(my_corpus, removePunctuation)
+```
+
+On uniformise tout le texte en minuscules via la fonction **content_transformer** en utilisant le terme "tolower" (on pourrait tout passer en majuscule en utilisant toupper)
+```{r}
+my_corpus<- tm_map(my_corpus, content_transformer(tolower))
+```
+
+On supprime les mots de liaisons tels que and, or, if , yet (ou "stopwords" en anglais) via la fonction **removewords**
+```{r}
+my_corpus<- tm_map(my_corpus, removeWords, stopwords("english"))
+```
+
+On supprime ensuite les espaces de plus d'un caractère dits "extrêmes" via la fonction **stripwhitespace**
+```{r}
+my_corpus<- tm_map(my_corpus, stripWhitespace)
+```
+
+Stemming: on conserve uniquement la racine des mots en supprimant préfixes et suffixes grâce au package **Snowballc** et sa focntion **stemdocument**
+```{r}
+#install.packages(Snowballc)
+library(SnowballC)
+
+my_corpus<- tm_map(my_corpus, stemDocument)
+
+```
+
+Création d'une matrice document-termes listant la fréquence d'apparition de mots clef par document bia la fonction **DocumentTermMatrix**
+
+```{r}
+dtm <- DocumentTermMatrix(my_corpus)
+inspect(dtm)
+```
+
+###Analyse des données de texte, présentation sous forme de tableau exploitable
+
+Déterminer fréquence d'apparition de chaque mot-clef dans le corpus via la fonction **colSums**.
+
+```{r}
+freq<-colSums(as.matrix(dtm))
+```
+
+Affichage des fréquences des mots-clefs ordonnés du plus fréquent au moins fréquent via la fonction **order**
+
+```{r}
+ord<-order(freq,decreasing = TRUE)
+```
+
+On peut afficher uniquement les mots-clefs les plus utilisés avec la fonction **head**
+
+```{r}
+freq[tail(ord)]
+```
+
+On peut afficher les mots-clefs les moins utilisés avec la fonction **tail**
+```{r}
+freq[head(ord)]
+```
+
+
+## Evaluation du travail : 
+
+<br> 1) Effort de présentation : Le pdf est bien présenté et bien ordonné via des sections bien visibles et reconnaissables
+<br> 2) Le knit est réalisable et bien présenté : Le knit n'a posé aucun soucis et la présentation est bien mise en place.
+<br> 3) Explications simples et efficaces : Les explication fournies sont simples et facilement compréhensibles. De plus, le découpage efficace permet de bien appréhender la méthode par étapes.
+<br> 4) Le Code reproductible à d'autres DataFrame avec facilité :b Grâce au découpage efficace du code en sous-parties et à l'explication de toutes les fonctions et termes requis, le code est facilement reproductible et adaptable à tout autre PDF.
+<br> 5) Description des fonctions utilsés et du raisonnement : Les fonctions principales utilisées sont les fonctions **pdf_text** pour la récupération du texte et son stockage dans un objet puis les fonctions **content_transformers** et **stemdocument** pour le nettoyage des données afin de ne conserver que les mots clefs et enfin la fonction **DocumentTermMatrix** afin d'obtenir une matrice exploitable des résultats de l'analyse.
+
+
+
+## Conclusion : 
+Ce tutoriel illustre de manière simple et très claire les différentes étapes et fonctions nécessaires à l'analyse d'un document pdf via R dans un but d'analyse sémantique.

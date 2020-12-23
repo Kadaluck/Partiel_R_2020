@@ -1,0 +1,136 @@
+---
+title: "kadaoui_alexandre_Rpart"
+author: "Alexandre"
+date: "23/12/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+<br> Dans le cadre de notre partiel, nous devons réaliser un total de 12 travaux retracant notre parcours et notre travail durant les 30 heures de cours. 
+<br>    Le travail à faire est le suivant : 
+<br>    - Une entête comportant un titre, un lien Github avec le ou les noms des auteurs.
+<br>    - Une synthese de ce travail 
+<br>    - Un extrait commenté avec des parties de codes clé avec explication et commentaire. 
+<br>    - Une évalutation du travail avec nos 5 criteres. 
+<br>    - Une conclusion du travail 
+
+## Definition des 5 critères de notations : 
+<br> 1) Effort de présentation : 
+<br> 2) Le knit est réalisable et bien présenté.
+<br> 3) Explications simples et efficaces.
+<br> 4) Le Code reproductible à d'autres DataFrame avec facilité. 
+<br> 5) Description des fonctions utilsés et du raisonnement. 
+
+## Rpart / CART
+Travail réalisé par "Maxime & Siva" le 11/11/2020. 
+
+https://github.com/mallaker/PSB_X/tree/main/Package%20Rpart
+
+
+## Synthese : 
+<br> RPART (Recursive Partitioning And Regression Trees) aussi connu sous le nom de CART (Classification And Regression Trees) est un package dont le but est de construire des modèles prédictifs.
+<br> Ces modèles prédictifs prennent la forme d'arbres de décision, s'appuyant sur plusieurs paramètres à chaque embranchement afin de déterminer la solution la plus adéquate possible à mesure que l'on avance vers les branches les plus extérieures de l'arbre.
+<br> Ces modèles peuvent être utilisés pour la classification et/ou la régression
+<br> Ce modèle d'apprentissage offre de par son design en arbres une bonne facilité et compréhension et d'interprétation de par son concept simple et sa représentation graphique concrète.
+<br> Cependant, cette méthode est limitée dans le cas de gestion de trop gros volumes de données.
+<br> Cette méthode est également très susceptible au sur-apprentissage (dans le cas où chaque branche finale de l'arbre correspondrait exactement à chaque unique cas du pool de données d'entrainement, avec ce que cela comporte de données aberrantes et de bruit). Afin d'éviter cela, il est nécessaire de pratiquer un "élagage" en supprimant un certain nombres de branches de l'arbre (si possible en retirant au maximum les valeurs aberrantes).
+
+
+## Extrait commenté du code :
+
+Librairies nécessaires
+```{r}
+library(rpart)
+library(rpart.plot) #plot pour la represention de l'arbre de decision rpart
+
+```
+
+On utilise ici le dataset Ptitanic, contenant diverses information sur les passagers du Titanic ainsi que leur survie ou non suite au du nauffrage du navire.
+```{r}
+data(ptitanic)
+summary(ptitanic)#description des données
+lapply(ptitanic,class) #donne la classe de chaque variable
+```
+
+Ce morceau de code a pour but de vérifier que les variables "age" "sibsp" (nombre de frères, soeurs, mari/épouse à bord) et "parch" (nombre d'enfants ou parents à bord) sont bien des nombres
+Cependant la méthode ne m'est pas familière et aucune information additionnelle n'est fournie dans le document.
+```{r}
+attr(ptitanic$age,"class") <- NULL
+class(ptitanic$age)
+```
+
+On sélectionne ici les 75% premières lignes du data set afin de servir de pool de données d'apprentissage. Les 25% constituant les dernières lignes du tableau seront utilisées plus tard afin de tester la précision du modèle.
+
+```{r}
+nb_lignes <- floor((nrow(ptitanic)*0.75)) #on selctionne le nombre de ligne pour notre echantillons d'apprentissage soit 75% du dataset initial
+ptitanic.apprt <- ptitanic[1:nb_lignes, ]#echantillon d'apprentissage
+ptitanic.test <- ptitanic[(nb_lignes+1):nrow(ptitanic), ]#echantillon de test
+```
+
+<br>Construction de l'arbre avec la fonction **rpart()** grâce au pool de données d'apprentissage établi plus haut
+<br> On souhaite ici prédire la variable  "survived", on la place donc à gauche du symbole "~"
+<br> On souhaite prédire cette variable en s'appuyant sur toutes les autres variables, on représente cela par un point. On placera ces variables de détermination à gauche du symbole "~"
+<br>**rpart.control** a pour but d'élaguer l'arbre afin d'éviter le sur-apprentissage
+<br> Ici chaque branche contenant 5 observations ou plus (cas trop spécifiques) seront coupés, cp=o désigne une absencce de contrainte de decoupage
+```{r}
+#construction de l'arbre
+ptitanic.Arbre <- rpart(survived~.,data= ptitanic.apprt,control=rpart.control(minsplit=5,cp=0))
+#affichage de l'arbre
+plot(ptitanic.Arbre, uniform=TRUE, branch=0.5, margin=0.1)
+text(ptitanic.Arbre,all=FALSE, use.n=TRUE)
+```
+
+Elagage de l'arbre avec un CP idéal déterminé grâce à la fonction **which.min**
+```{r}
+ptitanic.Arbre_Opt <- prune(ptitanic.Arbre,cp=ptitanic.Arbre$cptable[which.min(ptitanic.Arbre$cptable[,4]),1])
+
+#Affichage de l'arbre
+prp(ptitanic.Arbre_Opt,extra = 1)
+```
+
+Prédictions du modèle pour le pool de données de test
+```{r}
+#prediction du modele sur les données de test
+ptitanic.test_predict <- predict(ptitanic.Arbre_Opt,newdata =ptitanic.test,type = "class")
+#affichons juste la prediction faite sur les 10 premiers elements
+print(ptitanic.test_predict[1:10])
+#Matrice de confusion
+MC <- table(ptitanic.test$survived,ptitanic.test_predict)
+print(MC)
+```
+
+Evaluation des performances du modèle
+```{r}
+#Erreur de classement
+erreur <- 1.0-(MC[1,1]+MC[2,2]/sum(MC))
+print(erreur)
+#Taux de prediction
+prediction <- MC[2,2]/sum(MC[2,])
+prediction
+```
+
+Interprétation finale
+
+```{r}
+print(ptitanic.Arbre_Opt)
+```
+
+
+## Evaluation du travail : 
+
+<br> 1) Effort de présentation : La présentation est bien soignée et parfaitement lisible et organisée
+<br> 2) Le knit est réalisable et bien présenté : Le Knit s'effectue sans difficulté, tous les éléments à afficher du code s'impriment parfaitement bien.
+<br> 3) Explications simples et efficaces : Le tutoriel prend le temps de détailler chaque étape dans l'ordre, ajouter des précisions sur tous les aspects du code et déroule le raisonnement d'une manière logique et fluide. Tous les aspects sont abordés de la manière la plus simple et compréhensible possible.
+<br> 4) Le Code reproductible à d'autres DataFrame avec facilité : Grace aux nombreuses précisions et annotations expliquant toutes les fonctions, variables et leur fonctionnement, ce code est parfaitement reproductible et réutilisable dans de très nombreux cas pratiques différents de l'exemple vu ici.
+<br> 5) Description des fonctions utilsés et du raisonnement : Les principales fonctions utilisées ici sont **rpart** et **rpart.control** dans le cadre de la formation/entrainement du modèle, la fonction **predict** pour l'application du modèle ainsi que la fonction **which.min** dans le cadre de l'élagage nécessaire afind d'éviter un sur-apprentissage et donc une sur-spécification du modèle.
+
+
+
+## Conclusion : 
+
+En conclusion, ce tutotriel extrêmement bien réalisé permet de comprendre de manière simple, rapide et visuelle la création de modèles prédictifs sous formes d'arbres de décision dans un but de classification ou de regression. La construction fluide et logique du tutoriel permet de bien suivre les étapes afin de s'approprier le contenu/la méthode et d'être en mesure de l'appliquer à de futurs nouveaux cas.

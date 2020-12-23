@@ -1,0 +1,58 @@
+---
+title: "Untitled"
+author: "Alexandre"
+date: "23/12/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+<br> Dans le cadre de notre partiel, nous devons réaliser un total de 12 travaux retracant notre parcours et notre travail durant les 30 heures de cours. 
+<br>    Le travail à faire est le suivant : 
+<br>    - Une entête comportant un titre, un lien Github avec le ou les noms des auteurs.
+<br>    - Une synthese de ce travail 
+<br>    - Un extrait commenté avec des parties de codes clé avec explication et commentaire. 
+<br>    - Une évalutation du travail avec nos 5 criteres. 
+<br>    - Une conclusion du travail 
+
+## Definition des 5 critères de notations : 
+<br> 1) Effort de présentation : 
+<br> 2) Le knit est réalisable et bien présenté.
+<br> 3) Explications simples et efficaces.
+<br> 4) Le Code reproductible à d'autres DataFrame avec facilité. 
+<br> 5) Description des fonctions utilsés et du raisonnement. 
+
+## Rpart
+Travail réalisé par " " le 11/11/2020. 
+
+GitHub:
+
+
+## Synthese : 
+<br>
+
+
+## Extrait commenté du code :
+
+
+```{r}
+
+
+```
+
+
+## Evalutation du travail : 
+
+<br> 1) Effort de présentation :
+<br> 2) Le knit est réalisable et bien présenté :
+<br> 3) Explications simples et efficaces :
+<br> 4) Le Code reproductible à d'autres DataFrame avec facilité :
+<br> 5) Description des fonctions utilsés et du raisonnement : 
+
+
+
+## Conclusion : 

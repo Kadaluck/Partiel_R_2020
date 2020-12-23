@@ -1,0 +1,84 @@
+---
+title: "kadaoui_alexandre_CrossValidation"
+author: "Alexandre"
+date: "21/12/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+<br> Dans le cadre de notre partiel, nous devons réaliser un total de 12 travaux retracant notre parcours et notre travail durant les 30 heures de cours. 
+<br>    Le travail à faire est le suivant : 
+<br>    - Une entête comportant un titre, un lien Github avec le ou les noms des auteurs.
+<br>    - Une synthese de ce travail 
+<br>    - Un extrait commenté avec des parties de codes clé avec explication et commentaire. 
+<br>    - Une évalutation du travail avec nos 5 criteres. 
+<br>    - Une conclusion du travail 
+
+## Definition des 5 critères de notations : 
+<br> 1) Effort de présentation : 
+<br> 2) Le knit est réalisable et bien présenté.
+<br> 3) Explications simples et efficaces.
+<br> 4) Le Code reproductible à d'autres DataFrame avec facilité. 
+<br> 5) Description des fonctions utilsés et du raisonnement. 
+
+## La Cross Validation
+
+Travail réalisé par "Marko ARSIC / Rindra LUTZ" le 15/11/2020. 
+
+https://github.com/ARSICMrk/ARSIC_PSBx/blob/main/R_Travail_Sup
+
+
+## Synthese : 
+<br> La Cross Validation correspond à une méthode de vérification du set de donnée utilisé lors de l'entrainement d'un modèle afin d'augmenter la fiabilité du modèle. 
+<br> A cette fin on isole une partie du pool de données utilisé pour l'apprentissage afin de l'utiliser en tant qu'échantillon de test. 
+<br> On pourra répéter ce processus un nombre K de fois (ou "K folds") en utilisant à chaque fois une partie différente du pool de données qui servira de test pour le modèle.
+<br> Il est important de noter qu'un "sur-apprentissage" du modèle sur un même pool de données sera dans une majeure partie des cas contre-productive. En effet, un modèle surentrainé sur un pool en particulier sera trop influencé par les bruits et/ou cas aberrants de ce pool et sera donc moins à même d'établir des prédictions de manière pertinente à partir de pools de données différents.
+
+
+## Extrait commenté du code :
+
+
+```{r}
+
+library(tidyverse)
+library(caret)
+
+# Téléchargement des données t
+data("swiss")
+
+# Inspecter les données
+sample_n(swiss, 3)
+
+# Mise en place de la cross validation "cv" pour k = 10 folds, on répète ici la cross validation 3 fois afin de réduire le bruit et donc la MAE et RMSE 
+set.seed(123) 
+train.control <- trainControl(method = "cv", number = 10
+                              , repeats = 3)
+
+# Entraîner le modèle poour une modélisation linéaire "lm" à partir du pool de données "swiss" en appliquant la cross validation établie plus haut
+model <- train(Fertility ~., data = swiss, method = "lm",
+               trControl = train.control)
+
+# Résultats résumés, R2 correspond au coef de corrélation qui doit tendre au maximum vers 1, MAE (l'erreur moyenne absolue) et RMSE (l'erreur quadratique moyenne) doivent tendre au maximum vers 0
+print(model)
+
+```
+
+
+## Evaluation du travail : 
+
+<br> 1) Effort de présentation : Le RMD ainsi que le PDF sont bien structurés et bien organiséspour être lisible à la perfection. De plus la vidéo ajoute un complément d'information intéressant et dynamique.
+<br> 2) Le knit est réalisable et bien présenté : Knit réalisable sans soucis et bien mis en page
+<br> 3) Explications simples et efficaces : Les explications sont claires et directes sans détourds superflus.
+<br> 4) Le Code reproductible à d'autres DataFrame avec facilité : Le code est simplifié au maximum afin de ne conserver que les fonctions essentielles qui seront facilement réplicables dans n'importe quelle situation similaire
+<br> 5) Description des fonctions utilsés et du raisonnement : Les fonctions clefs utilisées ici sont les fonctions **traincontrol()** ainsi que **train()** et la fonctionnalité principale est l'application d'une cross validation à K= 10 folds
+
+
+
+## Conclusion : 
+En conclusion, ce tutoriel complet est direct permet de s'approprier de manière simple et efficace les bases de l'entrainement d'un modèle à partir d'un pool de données et le perfectionnement de ses capacités de prédicition grâce à la Cross Validation. Le support vidéo ainsi que les schéma ajoutés au github sont des bonus d'une grande valeur afin de faciliter la compréhension et apporter plus de dynamisme et d'intéractivité au tutoriel.
+
